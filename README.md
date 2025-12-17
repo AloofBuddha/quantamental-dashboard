@@ -10,14 +10,72 @@ Engineers Gate is a cutting-edge quantitative hedge fund where technology drives
 
 This project requires Node.js version 18.
 
+### Check if Node.js is installed
+
 ```bash
-# Set Node version
+node --version
+```
+
+If Node.js is not installed or you don't have version 18, follow the installation instructions below.
+
+### Installing Node.js
+
+#### Option 1: Official Node.js Installer
+1. Visit [nodejs.org](https://nodejs.org/)
+2. Download the LTS version (should be v18.x.x or higher)
+3. Run the installer and follow the setup wizard
+4. Verify installation: `node --version`
+
+#### Option 2: Using Node Version Manager (nvm)
+**macOS/Linux:**
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+# Restart terminal or run: source ~/.bashrc
+
+# Install and use Node.js 18
+nvm install 18
+nvm use 18
+```
+
+**Windows:**
+```bash
+# Install nvm-windows from: https://github.com/coreybutler/nvm-windows
+# Then run:
+nvm install 18
+nvm use 18
+```
+
+#### Option 3: Package Managers
+**macOS (Homebrew):**
+```bash
+brew install node@18
+```
+
+**Windows (Chocolatey):**
+```bash
+choco install nodejs --version=18.19.0
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+### Start the Development Server
+
+Once Node.js 18 is installed:
+
+```bash
+# Set Node version (if using nvm)
 nvm use 18
 
 # Install dependencies and start development server
 pnpm install
 pnpm run dev
 ```
+
 
 ## Overview
 
