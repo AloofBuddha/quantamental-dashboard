@@ -1,0 +1,7 @@
+node_modules
+dist
+build
+.git
+*.json
+pnpm-lock.yaml
+routeTree.gen.ts

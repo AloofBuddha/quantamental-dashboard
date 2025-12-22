@@ -23,7 +23,7 @@ function RouteComponent() {
 				<div className="flex flex-col">
 					{NAVIGATION_CONFIG.map((item) => (
 						<Link key={item.id} to={item.route} activeOptions={{ exact: false }} className="hover:text-blue-500 p-1">
-							<a>{item.name}</a>
+							{item.name}
 						</Link>
 					))}
 				</div>

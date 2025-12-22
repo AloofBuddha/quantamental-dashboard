@@ -1,22 +1,22 @@
-import { SystemTheme, useCurrentTheme, useSetCurrentTheme, useSetDarkMode } from '@/stores/DarkModeStore'
+import { SystemTheme, useCurrentTheme, setCurrentTheme, setDarkMode } from '@/stores/DarkModeStore'
 import { ComputerDesktopIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
 
 export default function LightDarkModeToggle() {
 	const currentTheme = useCurrentTheme()
 
 	const handleOnClickSystem = () => {
-		useSetCurrentTheme(SystemTheme.SYSTEM)
-		useSetDarkMode(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+		setCurrentTheme(SystemTheme.SYSTEM)
+		setDarkMode(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
 	}
 
 	const handleOnClickDark = () => {
-		useSetCurrentTheme(SystemTheme.DARK)
-		useSetDarkMode(true)
+		setCurrentTheme(SystemTheme.DARK)
+		setDarkMode(true)
 	}
 
 	const handleOnClickLight = () => {
-		useSetCurrentTheme(SystemTheme.LIGHT)
-		useSetDarkMode(false)
+		setCurrentTheme(SystemTheme.LIGHT)
+		setDarkMode(false)
 	}
 	return (
 		<div className={`flex items-center space-x-3 border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-[20px] `}>

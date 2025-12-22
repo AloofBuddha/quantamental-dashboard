@@ -43,7 +43,8 @@ export default function Table() {
 		rowData: trades,
 		pagination: true,
 		paginationPageSize: 50,
-		getRowId: (params: any) => params.data[ROW_ID]
+		getRowId: (params: { data: Trade }) => params.data[ROW_ID],
+		loadThemeGoogleFonts: true
 	}
 
 	useEffect(() => {
