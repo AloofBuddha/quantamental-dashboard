@@ -1,6 +1,6 @@
-export const useLocalStorage = (key: string) => {
+export const localStorageHelper = (key: string) => {
 	// MARK: Single Value methods
-	const setItem = (value: any) => {
+	const setItem = (value: unknown) => {
 		if (typeof window !== 'undefined') {
 			window.localStorage.setItem(key, JSON.stringify(value))
 		}
@@ -31,12 +31,12 @@ export const useLocalStorage = (key: string) => {
 		return item ? item[dictionaryKey] : null
 	}
 
-	const setDictionaryItem = (dictionaryKey: string, value: any) => {
+	const setDictionaryItem = (dictionaryKey: string, value: unknown) => {
 		if (window == undefined) {
 			console.error('setDictionary: window is not defined', window)
 			return
 		}
-		let prev = getItem()
+		const prev = getItem()
 		if (prev == undefined) {
 			window.localStorage.setItem(key, JSON.stringify({ [dictionaryKey]: value }))
 		} else {
@@ -70,7 +70,7 @@ export const useLocalStorage = (key: string) => {
 		return result
 	}
 
-	const setNestedValue = (dictionaryKeys: string[], value: any) => {
+	const setNestedValue = (dictionaryKeys: string[], value: unknown) => {
 		if (window == undefined) {
 			console.error('setNestedValue: window is not defined', window)
 			return
@@ -108,7 +108,7 @@ export const useLocalStorage = (key: string) => {
 			return
 		}
 
-		let prev = getItem()
+		const prev = getItem()
 		if (prev == undefined) {
 			// If there is no previous value, initialize it as an empty object
 			return

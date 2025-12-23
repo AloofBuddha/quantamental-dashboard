@@ -7,7 +7,7 @@ import 'ag-charts-enterprise'
 export default function CandleStick({ height = 500, title = 'AAPL' }: { height: number; title: string }) {
 	const chartRef = useRef<AgChartInstance>(null)
 
-	const getData = (data: any[]) => {
+	const getData = (data: number[][]) => {
 		return data.map((data) => ({ date: new Date(data[0]), open: data[1], high: data[2], low: data[3], close: data[4], volume: Math.random() * 1000 + 100 }))
 	}
 

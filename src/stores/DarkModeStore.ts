@@ -1,4 +1,4 @@
-import { useLocalStorage } from '@/utils/useLocalStorage'
+import { localStorageHelper } from '@/utils/localStorageHelper'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 
@@ -21,18 +21,18 @@ interface Actions {
 	}
 }
 
-const getInitalDarkMode = () => {
+const getInitialDarkMode = () => {
 	// Also sets document class for dark mode on initial load
-	const { getNestedValue } = useLocalStorage('globalSettings')
-	let initalDarkMode = getNestedValue(['isDarkMode']) == undefined ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : getNestedValue(['isDarkMode'])
-	initalDarkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')
-	return initalDarkMode
+	const { getNestedValue } = localStorageHelper('globalSettings')
+	const initialDarkMode = getNestedValue(['isDarkMode']) == undefined ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : getNestedValue(['isDarkMode'])
+	initialDarkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')
+	return initialDarkMode
 }
 
 const useDarkModeStore = create<State & Actions>((set) => {
-	const { getNestedValue, setNestedValue } = useLocalStorage('globalSettings')
+	const { getNestedValue, setNestedValue } = localStorageHelper('globalSettings')
 	return {
-		isDarkMode: getInitalDarkMode(),
+		isDarkMode: getInitialDarkMode(),
 		currentTheme: getNestedValue(['currentTheme']) || SystemTheme.DARK,
 		actions: {
 			toggleDarkMode: () => {
@@ -79,12 +79,12 @@ export const useIsDarkModeOutsideComponent = () => useDarkModeStore.getState().i
 export const useCurrentTheme = () => useDarkModeStore((state) => state.currentTheme)
 
 // MARK: Actions
-export const useToggleDarkMode = () => useDarkModeStore.getState().actions.toggleDarkMode()
-export const useSetDarkMode = (darkMode: boolean) => useDarkModeStore.getState().actions.setDarkMode(darkMode)
-export const useSetCurrentTheme = (theme: SystemTheme) => useDarkModeStore.getState().actions.setCurrentTheme(theme)
+export const toggleDarkMode = () => useDarkModeStore.getState().actions.toggleDarkMode()
+export const setDarkMode = (darkMode: boolean) => useDarkModeStore.getState().actions.setDarkMode(darkMode)
+export const setCurrentTheme = (theme: SystemTheme) => useDarkModeStore.getState().actions.setCurrentTheme(theme)
 
 // Listens for system theme changes and updates the store accordingly
-export const useDarkMode: any = () => {
+export const useDarkMode = () => {
 	const isDarkMode = useIsDarkMode()
 	const currentTheme = useCurrentTheme()
 	// Listen for system theme changes
@@ -94,7 +94,7 @@ export const useDarkMode: any = () => {
 
 		const handleChange = (e: MediaQueryListEvent) => {
 			if (currentTheme == 'system') {
-				useSetDarkMode(e.matches)
+				setDarkMode(e.matches)
 			}
 		}
 
@@ -108,11 +108,11 @@ export const useDarkMode: any = () => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.ctrlKey && event.key === '0') {
 				if (isDarkMode) {
-					useSetCurrentTheme(SystemTheme.LIGHT)
+					setCurrentTheme(SystemTheme.LIGHT)
 				} else {
-					useSetCurrentTheme(SystemTheme.DARK)
+					setCurrentTheme(SystemTheme.DARK)
 				}
-				useToggleDarkMode() // Toggle dark mode
+				toggleDarkMode() // Toggle dark mode
 			}
 		}
 
