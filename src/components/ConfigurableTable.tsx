@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { ColDef, RowStyle, RowClassParams, IHeaderParams } from 'ag-grid-community'
+import type { ColDef, RowStyle, RowClassParams, IHeaderParams } from 'ag-grid-community'
 import { useIsDarkMode } from '@/stores/DarkModeStore'
 import { ROW_STRIPE_COLORS } from '@/constants/colorSchemes'
 import DataGrid from './DataGrid'

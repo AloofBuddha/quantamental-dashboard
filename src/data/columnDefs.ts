@@ -1,4 +1,4 @@
-import { ColDef } from 'ag-grid-community'
+import type { ColDef } from 'ag-grid-community'
 import { creditRatingComparator } from '@/utils/creditRatingComparator'
 
 export const TRADES_COLUMN_DEFS: ColDef[] = [
