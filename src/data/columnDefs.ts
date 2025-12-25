@@ -1,66 +1,329 @@
 import { ColDef } from 'ag-grid-community'
+import { creditRatingComparator } from '@/utils/creditRatingComparator'
 
 export const TRADES_COLUMN_DEFS: ColDef[] = [
-	{ field: 'id', headerName: 'Trade ID', minWidth: 120 },
-	{ field: 'status', headerName: 'Status', minWidth: 100 },
-	{ field: 'accountId', headerName: 'Account ID', minWidth: 120 },
-	{ field: 'positionId', headerName: 'Position ID', minWidth: 120 },
-	{ field: 'price', headerName: 'Price', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toFixed(2)}` },
-	{ field: 'quantity', headerName: 'Quantity', type: 'numericColumn' },
-	{ field: 'side', headerName: 'Side', minWidth: 80 },
-	{ field: 'ticker', headerName: 'Ticker', minWidth: 80 },
-	{ field: 'orderTime', headerName: 'Order Time', minWidth: 160, valueFormatter: (params) => new Date(params.value).toLocaleString() },
-	{ field: 'lastUpdate', headerName: 'Last Update', minWidth: 160, valueFormatter: (params) => new Date(params.value).toLocaleString() },
-	{ field: 'currency', headerName: 'Currency', minWidth: 80 }
+	{ field: 'id', headerName: 'Trade ID' },
+	{
+		field: 'status',
+		headerName: 'Status',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			values: ['PENDING', 'FILLED', 'CANCELLED'],
+			defaultToNothingSelected: true
+		}
+	},
+	{ field: 'accountId', headerName: 'Account ID' },
+	{ field: 'positionId', headerName: 'Position ID' },
+	{
+		field: 'price',
+		headerName: 'Price',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => `$${params.value?.toFixed(2)}`,
+		filterValueGetter: (params) => params.data?.price
+	},
+	{
+		field: 'quantity',
+		headerName: 'Qty',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter'
+	},
+	{
+		field: 'side',
+		headerName: 'Side',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			values: ['BUY', 'SELL'],
+			defaultToNothingSelected: true
+		}
+	},
+	{ field: 'ticker', headerName: 'Ticker' },
+	{
+		field: 'orderTime',
+		headerName: 'Order Time',
+		valueFormatter: (params) => new Date(params.value).toLocaleString(),
+		tooltipValueGetter: (params) => {
+			if (!params.value) return ''
+			return new Date(params.value).toLocaleString('en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				timeZoneName: 'short'
+			})
+		}
+	},
+	{
+		field: 'lastUpdate',
+		headerName: 'Last Update',
+		valueFormatter: (params) => new Date(params.value).toLocaleString(),
+		tooltipValueGetter: (params) => {
+			if (!params.value) return ''
+			return new Date(params.value).toLocaleString('en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				timeZoneName: 'short'
+			})
+		}
+	},
+	{ field: 'currency', headerName: 'Currency' }
 ]
 
 export const CREDIT_COLUMN_DEFS: ColDef[] = [
-	{ field: 'id', headerName: 'Credit ID', minWidth: 120 },
-	{ field: 'counterpartyId', headerName: 'Counterparty ID', minWidth: 140 },
-	{ field: 'counterpartyName', headerName: 'Counterparty Name', minWidth: 200 },
-	{ field: 'creditRating', headerName: 'Credit Rating', minWidth: 120 },
-	{ field: 'exposure', headerName: 'Exposure', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'collateral', headerName: 'Collateral', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'netExposure', headerName: 'Net Exposure', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'riskLimit', headerName: 'Risk Limit', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'utilizationPercent', headerName: 'Utilization %', type: 'numericColumn', valueFormatter: (params) => `${params.value?.toFixed(2)}%` }
+	{ field: 'id', headerName: 'ID', initialHide: true },
+	{ field: 'counterpartyId', headerName: 'CP ID', initialHide: true },
+	{ field: 'counterpartyName', headerName: 'Counterparty' },
+	{
+		field: 'creditRating',
+		headerName: 'Rating',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			values: ['AAA', 'AA+', 'AA', 'AA-', 'A+', 'A', 'A-', 'BBB+', 'BBB', 'BBB-', 'BB+', 'BB', 'BB-', 'B+', 'B', 'B-', 'CCC+', 'CCC', 'CCC-', 'CC', 'C', 'D'],
+			defaultToNothingSelected: true
+		},
+		comparator: creditRatingComparator
+	},
+	{
+		field: 'exposure',
+		headerName: 'Exposure',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.exposure
+	},
+	{
+		field: 'collateral',
+		headerName: 'Collateral',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.collateral
+	},
+	{
+		field: 'netExposure',
+		headerName: 'Net Exp.',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.netExposure
+	},
+	{
+		field: 'riskLimit',
+		headerName: 'Limit',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.riskLimit
+	},
+	{
+		field: 'utilizationPercent',
+		headerName: 'Util. %',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `${params.value.toFixed(1)}%` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.utilizationPercent
+	}
 ]
 
 export const HOLDINGS_COLUMN_DEFS: ColDef[] = [
-	{ field: 'id', headerName: 'Holding ID', minWidth: 120 },
-	{ field: 'portfolioId', headerName: 'Portfolio ID', minWidth: 120 },
-	{ field: 'symbol', headerName: 'Symbol', minWidth: 100 },
-	{ field: 'quantity', headerName: 'Quantity', type: 'numericColumn' },
-	{ field: 'marketValue', headerName: 'Market Value', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'costBasis', headerName: 'Cost Basis', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'unrealizedGainLoss', headerName: 'Unrealized P&L', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'weight', headerName: 'Weight', type: 'numericColumn', valueFormatter: (params) => `${(params.value * 100)?.toFixed(2)}%` },
-	{ field: 'sector', headerName: 'Sector', minWidth: 150 }
+	{ field: 'id', headerName: 'ID', initialHide: true },
+	{ field: 'portfolioId', headerName: 'Port. ID', initialHide: true },
+	{ field: 'symbol', headerName: 'Symbol' },
+	{
+		field: 'quantity',
+		headerName: 'Qty',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? params.value.toLocaleString() : '(unknown)'),
+		filterValueGetter: (params) => params.data?.quantity
+	},
+	{
+		field: 'marketValue',
+		headerName: 'Mkt Value',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.marketValue
+	},
+	{
+		field: 'costBasis',
+		headerName: 'Cost',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.costBasis
+	},
+	{
+		field: 'unrealizedGainLoss',
+		headerName: 'P&L',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.unrealizedGainLoss
+	},
+	{
+		field: 'weight',
+		headerName: 'Wt %',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `${(params.value * 100).toFixed(1)}%` : '(unknown)'),
+		// Filter on the actual percentage value (0-100) for better UX
+		filterValueGetter: (params) => params.data?.weight != null ? params.data.weight * 100 : null
+	},
+	{
+		field: 'sector',
+		headerName: 'Sector',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			defaultToNothingSelected: true
+		}
+	}
 ]
 
 export const RISK_COLUMN_DEFS: ColDef[] = [
-	{ field: 'id', headerName: 'Risk ID', minWidth: 120 },
-	{ field: 'portfolioId', headerName: 'Portfolio ID', minWidth: 120 },
-	{ field: 'riskType', headerName: 'Risk Type', minWidth: 140 },
-	{ field: 'VaR', headerName: 'VaR', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'expectedShortfall', headerName: 'Expected Shortfall', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'volatility', headerName: 'Volatility', type: 'numericColumn', valueFormatter: (params) => `${(params.value * 100)?.toFixed(2)}%` },
-	{ field: 'beta', headerName: 'Beta', type: 'numericColumn', valueFormatter: (params) => params.value?.toFixed(2) },
-	{ field: 'correlation', headerName: 'Correlation', type: 'numericColumn', valueFormatter: (params) => params.value?.toFixed(2) },
-	{ field: 'riskDate', headerName: 'Risk Date', minWidth: 160, valueFormatter: (params) => new Date(params.value).toLocaleString() }
+	{ field: 'id', headerName: 'ID', initialHide: true },
+	{ field: 'portfolioId', headerName: 'Port. ID', initialHide: true },
+	{
+		field: 'riskType',
+		headerName: 'Type',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			defaultToNothingSelected: true
+		}
+	},
+	{
+		field: 'VaR',
+		headerName: 'VaR',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.VaR
+	},
+	{
+		field: 'expectedShortfall',
+		headerName: 'Exp. Shortfall',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.expectedShortfall
+	},
+	{
+		field: 'volatility',
+		headerName: 'Vol. %',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `${(params.value * 100).toFixed(1)}%` : '(unknown)'),
+		// Filter on the actual percentage value (0-100) for better UX
+		filterValueGetter: (params) => params.data?.volatility != null ? params.data.volatility * 100 : null
+	},
+	{
+		field: 'beta',
+		headerName: 'Beta',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? params.value.toFixed(2) : '(unknown)'),
+		filterValueGetter: (params) => params.data?.beta
+	},
+	{
+		field: 'correlation',
+		headerName: 'Corr.',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? params.value.toFixed(2) : '(unknown)'),
+		filterValueGetter: (params) => params.data?.correlation
+	},
+	{
+		field: 'riskDate',
+		headerName: 'Date',
+		valueFormatter: (params) => (params.value ? new Date(params.value).toLocaleDateString() : '(unknown)'),
+		tooltipValueGetter: (params) => {
+			if (!params.value) return '(unknown)'
+			return new Date(params.value).toLocaleString('en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				timeZoneName: 'short'
+			})
+		}
+	}
 ]
 
 export const TRANSACTIONS_COLUMN_DEFS: ColDef[] = [
-	{ field: 'id', headerName: 'Transaction ID', minWidth: 140 },
-	{ field: 'accountId', headerName: 'Account ID', minWidth: 120 },
-	{ field: 'transactionType', headerName: 'Type', minWidth: 100 },
-	{ field: 'amount', headerName: 'Amount', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toLocaleString()}` },
-	{ field: 'currency', headerName: 'Currency', minWidth: 80 },
-	{ field: 'description', headerName: 'Description', minWidth: 200 },
-	{ field: 'category', headerName: 'Category', minWidth: 140 },
-	{ field: 'timestamp', headerName: 'Timestamp', minWidth: 160, valueFormatter: (params) => new Date(params.value).toLocaleString() },
-	{ field: 'status', headerName: 'Status', minWidth: 100 },
-	{ field: 'reference', headerName: 'Reference', minWidth: 160 },
-	{ field: 'counterparty', headerName: 'Counterparty', minWidth: 180 },
-	{ field: 'fees', headerName: 'Fees', type: 'numericColumn', valueFormatter: (params) => `$${params.value?.toFixed(2)}` }
+	{ field: 'id', headerName: 'ID', initialHide: true },
+	{ field: 'accountId', headerName: 'Acct ID', initialHide: true },
+	{
+		field: 'transactionType',
+		headerName: 'Type',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			defaultToNothingSelected: true
+		}
+	},
+	{
+		field: 'amount',
+		headerName: 'Amount',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toLocaleString()}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.amount
+	},
+	{ field: 'currency', headerName: 'Curr', initialHide: true },
+	{ field: 'description', headerName: 'Description' },
+	{
+		field: 'category',
+		headerName: 'Category',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			defaultToNothingSelected: true
+		}
+	},
+	{
+		field: 'timestamp',
+		headerName: 'Time',
+		valueFormatter: (params) => (params.value ? new Date(params.value).toLocaleString() : '(unknown)'),
+		tooltipValueGetter: (params) => {
+			if (!params.value) return '(unknown)'
+			return new Date(params.value).toLocaleString('en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				timeZoneName: 'short'
+			})
+		}
+	},
+	{
+		field: 'status',
+		headerName: 'Status',
+		filter: 'agSetColumnFilter',
+		filterParams: {
+			values: ['COMPLETED', 'PENDING', 'CANCELLED', 'FAILED', 'ERROR'],
+			defaultToNothingSelected: true
+		}
+	},
+	{ field: 'reference', headerName: 'Ref', initialHide: true },
+	{ field: 'counterparty', headerName: 'Counterparty' },
+	{
+		field: 'fees',
+		headerName: 'Fees',
+		type: 'numericColumn',
+		filter: 'agNumberColumnFilter',
+		valueFormatter: (params) => (params.value != null ? `$${params.value.toFixed(2)}` : '(unknown)'),
+		filterValueGetter: (params) => params.data?.fees
+	}
 ]
