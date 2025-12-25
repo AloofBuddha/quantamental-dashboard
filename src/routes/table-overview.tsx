@@ -74,7 +74,7 @@ function RouteComponent() {
 
 	return (
 		<div className="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-[calc(100vh-12rem)] gap-4">
-			<div className="h-[400px] xl:h-full">
+			<div className="h-[245px] xl:h-full">
 				<ConfigurableTable
 					data={creditData}
 					columnDefs={CREDIT_COLUMN_DEFS}
@@ -85,7 +85,7 @@ function RouteComponent() {
 					isExpanded={false}
 				/>
 			</div>
-			<div className="h-[400px] xl:h-full">
+			<div className="h-[245px] xl:h-full">
 				<ConfigurableTable
 					data={holdingsData}
 					columnDefs={HOLDINGS_COLUMN_DEFS}
@@ -96,7 +96,7 @@ function RouteComponent() {
 					isExpanded={false}
 				/>
 			</div>
-			<div className="h-[400px] xl:h-full">
+			<div className="h-[245px] xl:h-full">
 				<ConfigurableTable
 					data={riskData}
 					columnDefs={RISK_COLUMN_DEFS}
@@ -106,7 +106,7 @@ function RouteComponent() {
 					isExpanded={false}
 				/>
 			</div>
-			<div className="h-[400px] xl:h-full">
+			<div className="h-[245px] xl:h-full">
 				<ConfigurableTable
 					data={transactionsData}
 					columnDefs={TRANSACTIONS_COLUMN_DEFS}
