@@ -1,5 +1,4 @@
 import EngineersGateLogo from '@/assets/EngineersGateLogo'
-import BreadCrumb from '@/components/Breadcrumb'
 import LightDarkModeToggle from '@/components/LightDarkModeToggle'
 import { NAVIGATION_CONFIG } from '@/data/NavigationConfig'
 import { useDarkMode } from '@/stores/DarkModeStore'
@@ -15,7 +14,7 @@ export const Route = createRootRoute({
 
 /**
  * Root Layout Component
- * 
+ *
  * Provides the main app structure with:
  * - Top navigation bar with logo and nav links
  * - Breadcrumb navigation
@@ -64,11 +63,7 @@ function RouteComponent() {
 						</nav>
 
 						{/* Mobile Hamburger Menu Button */}
-						<button
-							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-							className={navigationStyles.menuButton}
-							aria-label="Toggle menu"
-						>
+						<button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className={navigationStyles.menuButton} aria-label="Toggle menu">
 							{mobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
 						</button>
 					</div>
@@ -100,11 +95,11 @@ function RouteComponent() {
 			</header>
 
 			{/* Breadcrumb Bar - Second Layer */}
-			<div className={headerStyles.breadcrumb}>
+			{/* <div className={headerStyles.breadcrumb}>
 				<div className="max-w-7xl mx-auto px-6 py-2">
 					<BreadCrumb />
 				</div>
-			</div>
+			</div> */}
 
 			{/* Main Content - Grows to fill viewport, can expand beyond */}
 			<main className={layoutStyles.main}>

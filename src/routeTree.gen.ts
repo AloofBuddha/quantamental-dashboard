@@ -11,21 +11,28 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as TableOverviewImport } from './routes/table-overview'
-import { Route as CandleSticksImport } from './routes/candle-sticks'
+import { Route as TickerImport } from './routes/ticker'
+import { Route as PortfolioImport } from './routes/portfolio'
+import { Route as FundamentalsImport } from './routes/fundamentals'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
-const TableOverviewRoute = TableOverviewImport.update({
-  id: '/table-overview',
-  path: '/table-overview',
+const TickerRoute = TickerImport.update({
+  id: '/ticker',
+  path: '/ticker',
   getParentRoute: () => rootRoute,
 } as any)
 
-const CandleSticksRoute = CandleSticksImport.update({
-  id: '/candle-sticks',
-  path: '/candle-sticks',
+const PortfolioRoute = PortfolioImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FundamentalsRoute = FundamentalsImport.update({
+  id: '/fundamentals',
+  path: '/fundamentals',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,18 +53,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/candle-sticks': {
-      id: '/candle-sticks'
-      path: '/candle-sticks'
-      fullPath: '/candle-sticks'
-      preLoaderRoute: typeof CandleSticksImport
+    '/fundamentals': {
+      id: '/fundamentals'
+      path: '/fundamentals'
+      fullPath: '/fundamentals'
+      preLoaderRoute: typeof FundamentalsImport
       parentRoute: typeof rootRoute
     }
-    '/table-overview': {
-      id: '/table-overview'
-      path: '/table-overview'
-      fullPath: '/table-overview'
-      preLoaderRoute: typeof TableOverviewImport
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioImport
+      parentRoute: typeof rootRoute
+    }
+    '/ticker': {
+      id: '/ticker'
+      path: '/ticker'
+      fullPath: '/ticker'
+      preLoaderRoute: typeof TickerImport
       parentRoute: typeof rootRoute
     }
   }
@@ -67,42 +81,47 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/candle-sticks': typeof CandleSticksRoute
-  '/table-overview': typeof TableOverviewRoute
+  '/fundamentals': typeof FundamentalsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/ticker': typeof TickerRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/candle-sticks': typeof CandleSticksRoute
-  '/table-overview': typeof TableOverviewRoute
+  '/fundamentals': typeof FundamentalsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/ticker': typeof TickerRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/candle-sticks': typeof CandleSticksRoute
-  '/table-overview': typeof TableOverviewRoute
+  '/fundamentals': typeof FundamentalsRoute
+  '/portfolio': typeof PortfolioRoute
+  '/ticker': typeof TickerRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/candle-sticks' | '/table-overview'
+  fullPaths: '/' | '/fundamentals' | '/portfolio' | '/ticker'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/candle-sticks' | '/table-overview'
-  id: '__root__' | '/' | '/candle-sticks' | '/table-overview'
+  to: '/' | '/fundamentals' | '/portfolio' | '/ticker'
+  id: '__root__' | '/' | '/fundamentals' | '/portfolio' | '/ticker'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CandleSticksRoute: typeof CandleSticksRoute
-  TableOverviewRoute: typeof TableOverviewRoute
+  FundamentalsRoute: typeof FundamentalsRoute
+  PortfolioRoute: typeof PortfolioRoute
+  TickerRoute: typeof TickerRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CandleSticksRoute: CandleSticksRoute,
-  TableOverviewRoute: TableOverviewRoute,
+  FundamentalsRoute: FundamentalsRoute,
+  PortfolioRoute: PortfolioRoute,
+  TickerRoute: TickerRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,18 +135,22 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/candle-sticks",
-        "/table-overview"
+        "/fundamentals",
+        "/portfolio",
+        "/ticker"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/candle-sticks": {
-      "filePath": "candle-sticks.tsx"
+    "/fundamentals": {
+      "filePath": "fundamentals.tsx"
     },
-    "/table-overview": {
-      "filePath": "table-overview.tsx"
+    "/portfolio": {
+      "filePath": "portfolio.tsx"
+    },
+    "/ticker": {
+      "filePath": "ticker.tsx"
     }
   }
 }

@@ -10,7 +10,8 @@
 
 import { WebSocketServer, WebSocket, RawData } from 'ws'
 import { generateStocks, type GeneratedStock } from './dataGenerator'
-import type { SnapshotMessage } from '@/types/Stock'
+import { MarketSimulator, estimateVolatility } from './marketSimulator'
+import type { SnapshotMessage, UpdateMessage, StockUpdate } from '@/types/Stock'
 
 // Extended WebSocket with heartbeat tracking
 interface ExtendedWebSocket extends WebSocket {
@@ -25,6 +26,22 @@ const HEARTBEAT_INTERVAL = 30000 // 30 seconds
 // Generate stock data once at startup
 console.log(`\nGenerating ${STOCK_COUNT} stocks...`)
 const stocks: GeneratedStock[] = generateStocks(STOCK_COUNT)
+
+// Initialize volatility for market simulation
+// Note: openPrice is already set by dataGenerator based on changePercent
+stocks.forEach((stock) => {
+	stock.volatility = estimateVolatility(stock)
+	// Calculate openPrice from existing price and changePercent
+	// changePercent = ((price - openPrice) / openPrice) * 100
+	// Solving for openPrice: openPrice = price / (1 + changePercent/100)
+	if (stock.changePercent !== undefined) {
+		stock.openPrice = stock.price / (1 + stock.changePercent / 100)
+	} else {
+		stock.openPrice = stock.price
+		stock.changePercent = 0
+	}
+})
+
 console.log(`Stock data ready!\n`)
 
 // Create WebSocket server
@@ -36,6 +53,40 @@ console.log(`Server ready! Waiting for connections...\n`)
 
 // Track active connections
 let connectionCount = 0
+
+// Market simulator (starts when first client connects)
+let marketSimulator: MarketSimulator | null = null
+
+/**
+ * Broadcast update message to all connected clients
+ */
+function broadcastUpdate(deltas: StockUpdate[]): void {
+	const updateMessage: UpdateMessage = {
+		type: 'update',
+		timestamp: Date.now(),
+		deltas
+	}
+
+	const message = JSON.stringify(updateMessage)
+	let broadcastCount = 0
+
+	wss.clients.forEach((client) => {
+		if (client.readyState === WebSocket.OPEN) {
+			try {
+				client.send(message)
+				broadcastCount++
+			} catch (error) {
+				const msg = error instanceof Error ? error.message : 'Unknown error'
+				console.error('Error broadcasting update:', msg)
+			}
+		}
+	})
+
+	// Log periodically (every 50 updates = ~10 seconds at 200ms intervals)
+	if (broadcastCount > 0 && Math.random() < 0.02) {
+		console.log(`Broadcasted ${deltas.length} deltas to ${broadcastCount} clients`)
+	}
+}
 
 // Handle new client connections
 wss.on('connection', (ws: ExtendedWebSocket) => {
@@ -57,6 +108,17 @@ wss.on('connection', (ws: ExtendedWebSocket) => {
 	} catch (error) {
 		const message = error instanceof Error ? error.message : 'Unknown error'
 		console.error(`Error sending snapshot to Client #${clientId}:`, message)
+	}
+
+	// Start market simulator when first client connects
+	if (!marketSimulator && wss.clients.size === 1) {
+		console.log('\nStarting market simulator (first client connected)...')
+		marketSimulator = new MarketSimulator(stocks, broadcastUpdate, {
+			updateIntervalMs: 200, // 5 updates/second
+			updatePercentage: 0.1, // Update 10% of stocks each tick
+			volatilityMultiplier: 1.0
+		})
+		marketSimulator.start()
 	}
 
 	// Set up heartbeat
@@ -84,6 +146,13 @@ wss.on('connection', (ws: ExtendedWebSocket) => {
 	// Handle client disconnect
 	ws.on('close', () => {
 		console.log(`Client #${clientId} disconnected (Total clients: ${wss.clients.size})`)
+
+		// Stop market simulator if no clients connected
+		if (marketSimulator && wss.clients.size === 0) {
+			console.log('Stopping market simulator (no clients connected)')
+			marketSimulator.stop()
+			marketSimulator = null
+		}
 	})
 
 	// Handle errors
@@ -109,12 +178,20 @@ const heartbeatInterval = setInterval(() => {
 // Cleanup on server shutdown
 wss.on('close', () => {
 	clearInterval(heartbeatInterval)
+	if (marketSimulator) {
+		marketSimulator.stop()
+	}
 	console.log('\nWebSocket server shutting down...')
 })
 
 // Handle process termination
 function gracefulShutdown(signal: string): void {
 	console.log(`\n\nReceived ${signal}, shutting down gracefully...`)
+
+	// Stop market simulator
+	if (marketSimulator) {
+		marketSimulator.stop()
+	}
 
 	wss.clients.forEach((ws) => {
 		ws.close()
@@ -129,6 +206,5 @@ function gracefulShutdown(signal: string): void {
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
-// Export for testing (Phase 1 complete with snapshot only)
-// Phase 3 will add real-time delta updates
-export { wss, stocks }
+// Export for testing
+export { wss, stocks, marketSimulator }
