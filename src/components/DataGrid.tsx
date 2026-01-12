@@ -12,7 +12,7 @@ interface DataGridProps {
 	data: unknown[]
 	columnDefs: ColDef[]
 	tableId: string
-	getRowStyle: (params: RowClassParams) => RowStyle | undefined
+	getRowStyle?: (params: RowClassParams) => RowStyle | undefined
 	rowIdField?: string
 	pagination?: boolean
 	height?: string
@@ -47,6 +47,12 @@ export default function DataGrid({
 	const isDarkMode = useIsDarkMode()
 	const theme = isDarkMode ? themeQuartz.withPart(colorSchemeDarkBlue) : themeQuartz
 
+	// Helper function to check if tool panel is currently open
+	const isToolPanelOpen = () => {
+		const isOpen = gridRef.current?.api?.getOpenedToolPanel() !== null && gridRef.current?.api?.getOpenedToolPanel() !== undefined
+		return isOpen
+	}
+
 	const gridOptions: GridOptions = {
 		theme: theme,
 		columnDefs: columnDefs,
@@ -60,6 +66,10 @@ export default function DataGrid({
 		getRowStyle: getRowStyle,
 		domLayout: 'normal',
 		tooltipShowDelay: 500,
+		// Performance optimizations for real-time updates
+		asyncTransactionWaitMillis: 50, // Batch transactions for better performance
+		suppressAnimationFrame: false, // Enable animation frame for smooth updates
+		enableCellChangeFlash: true, // Flash cells on value change
 		sideBar: {
 			toolPanels: [
 				{
@@ -82,22 +92,41 @@ export default function DataGrid({
 			defaultToolPanel: ''
 		},
 		onColumnVisible: () => {
+			const panelOpen = isToolPanelOpen()
+			console.log(`[${tableId}] onColumnVisible triggered, toolPanelOpen:`, panelOpen)
+
+			// Don't resize when tool panel is open - it can cause the panel to close
+			if (panelOpen) {
+				console.log(`[${tableId}] Skipping sizeColumnsToFit - tool panel is open`)
+				return
+			}
+
 			setTimeout(() => {
 				if (gridRef.current?.api) {
+					console.log(`[${tableId}] sizeColumnsToFit from onColumnVisible`)
 					gridRef.current.api.sizeColumnsToFit()
 					const columnState = gridRef.current.api.getColumnState()
 					localStorage.setItem(`${tableId}-columnState`, JSON.stringify(columnState))
 				}
 			}, 0)
 		},
-		onToolPanelVisibleChanged: () => {
-			setTimeout(() => {
-				if (gridRef.current?.api) {
-					gridRef.current.api.sizeColumnsToFit()
-				}
-			}, 0)
+		onToolPanelVisibleChanged: (params) => {
+			const isOpen = params.api.getOpenedToolPanel() !== null
+			console.log(`[${tableId}] onToolPanelVisibleChanged - isOpen:`, isOpen, 'panel:', params.api.getOpenedToolPanel())
+
+			// Only resize columns when closing the panel, not when opening
+			// Opening can cause re-layout that closes the panel immediately
+			if (!isOpen) {
+				setTimeout(() => {
+					if (gridRef.current?.api) {
+						console.log(`[${tableId}] sizeColumnsToFit from onToolPanelVisibleChanged (closing)`)
+						gridRef.current.api.sizeColumnsToFit()
+					}
+				}, 0)
+			}
 		},
 		onGridReady: () => {
+			console.log(`[${tableId}] onGridReady called`)
 			if (gridRef.current?.api) {
 				const savedColumnState = localStorage.getItem(`${tableId}-columnState`)
 				const savedFilterModel = localStorage.getItem(`${tableId}-filterModel`)
@@ -158,32 +187,43 @@ export default function DataGrid({
 	}
 
 	useEffect(() => {
-		if (gridRef.current?.api) {
-			gridRef.current.api.setGridOption('rowData', data)
+		const panelOpen = isToolPanelOpen()
+		console.log(`[${tableId}] Data changed, length:`, data.length, 'toolPanelOpen:', panelOpen)
+		if (gridRef.current?.api && !panelOpen) {
+			// Use async transactions for better performance with large datasets
+			// This batches updates and only re-renders changed rows
+			// Skip updates when tool panel is open to prevent interference
+			gridRef.current.api.applyTransactionAsync({ update: data as any })
 		}
-	}, [data])
+	}, [data, tableId])
 
 	useEffect(() => {
-		if (gridRef.current?.api) {
+		const panelOpen = isToolPanelOpen()
+		console.log(`[${tableId}] Dark mode changed:`, isDarkMode, 'toolPanelOpen:', panelOpen)
+		if (gridRef.current?.api && !panelOpen) {
 			gridRef.current.api.redrawRows()
 		}
-	}, [isDarkMode])
+	}, [isDarkMode, tableId])
 
 	useEffect(() => {
-		if (gridRef.current?.api) {
+		const panelOpen = isToolPanelOpen()
+		console.log(`[${tableId}] Row style function changed, toolPanelOpen:`, panelOpen)
+		if (gridRef.current?.api && !panelOpen) {
 			gridRef.current.api.redrawRows()
 		}
-	}, [getRowStyle])
+	}, [getRowStyle, tableId])
 
 	useEffect(() => {
+		console.log(`[${tableId}] isExpanded changed:`, isExpanded)
 		if (gridRef.current?.api) {
 			setTimeout(() => {
 				if (gridRef.current?.api) {
+					console.log(`[${tableId}] sizeColumnsToFit from isExpanded effect`)
 					gridRef.current.api.sizeColumnsToFit()
 				}
 			}, 0)
 		}
-	}, [isExpanded])
+	}, [isExpanded, tableId])
 
 	useEffect(() => {
 		const handleResize = () => {
