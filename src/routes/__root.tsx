@@ -1,4 +1,4 @@
-import EngineersGateLogo from '@/assets/EngineersGateLogo'
+// import EngineersGateLogo from '@/assets/EngineersGateLogo'
 import LightDarkModeToggle from '@/components/LightDarkModeToggle'
 import { NAVIGATION_CONFIG } from '@/data/NavigationConfig'
 import { useDarkMode } from '@/stores/DarkModeStore'
@@ -38,7 +38,7 @@ function RouteComponent() {
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
 					<div className="flex items-center justify-between">
 						{/* Logo - Left */}
-						<EngineersGateLogo className="fill-[#00458a] dark:fill-slate-100 h-6 sm:h-7 md:h-8 flex-shrink-0" />
+						{/* <EngineersGateLogo className="fill-[#00458a] dark:fill-slate-100 h-6 sm:h-7 md:h-8 flex-shrink-0" /> */}
 
 						{/* Center - Dark Mode Toggle */}
 						<div className="hidden md:flex flex-1 justify-center">
